@@ -10,12 +10,16 @@ class Travel implements ITravel
 	private $travels = [];
 
 	public function __construct() {
+		$this->initTravels();
+	}
+	
+	private function initTravels() {
 		$ch = curl_init(self::URL);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			       
-		$this->travels = json_decode(curl_exec($ch), true);
+		$this->travels = json_decode(curl_exec($ch), true) ?? [];
 	}
-	
+
 	public function getTravels() {
 		return $this->travels;
 	}
@@ -27,37 +31,41 @@ class Company
 	private $companies = [];
 
 	public function __construct() {
+		$this->initCompanies();
+	}
+
+	public function initCompanies() {
 		$ch = curl_init(self::URL);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        $this->companies = json_decode(curl_exec($ch), true);
+        $this->companies = json_decode(curl_exec($ch), true) ?? [];
 	}
 
 	public function getTotalSum(ITravel $travel, $parentId = '0') {
     	$tree = [];
 
-    	foreach($this->companies as $element) {
-    		if($element['parentId'] == $parentId) {
-    			$children = $this->getTotalSum($travel, $element['id']);
+    	foreach($this->companies as $company) {
+    		if($company['parentId'] == $parentId) {
+    			$children = $this->getTotalSum($travel, $company['id']);
     			if ($children) {
     				$prices = array_column($children, 'cost');
     				
-    				$element['cost'] = array_sum($prices);
-    				$element['children'] = $children;
+    				$company['cost'] = array_sum($prices);
+    				$company['children'] = $children;
     				
     			} else {
-    				$element['children'] = [];
+    				$company['children'] = [];
     			}
     			
-    			 if ($element['children'] == []) {
- 			        $travelsFound = array_filter($travel->getTravels(), function ($company) use ($element) {
-			        	return $company['companyId'] == $element['id'];
+    			 if ($company['children'] == []) {
+ 			        $travelsFound = array_filter($travel->getTravels(), function ($travel) use ($company) {
+			        	return $travel['companyId'] == $company['id'];
 			    	}); 
 			    	$prices = array_column($travelsFound, 'price');
-    				$element['cost'] = array_sum($prices);
+    				$company['cost'] = array_sum($prices);
     			}
     	
-				$tree[] = $element; 
+				$tree[] = $company; 
     		}
     	}
 
