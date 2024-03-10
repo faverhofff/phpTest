@@ -12,9 +12,8 @@ class Travel implements ITravel
 	public function __construct() {
 		$ch = curl_init(self::URL);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$travels   = json_decode(curl_exec($ch), true);
 			       
-		$this->travels = json_decode($travels, true);
+		$this->travels = json_decode(curl_exec($ch), true);
 	}
 	
 	public function getTravels() {
@@ -29,11 +28,9 @@ class Company
 
 	public function __construct() {
 		$ch = curl_init(self::URL);
-	
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		$companies = json_decode(curl_exec($ch), true);
 
-		$this->companies = json_decode($companies, true);
+        $this->companies = json_decode(curl_exec($ch), true);
 	}
 
 	public function getTotalSum(ITravel $travel, $parentId = '0') {
